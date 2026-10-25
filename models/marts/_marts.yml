@@ -1,0 +1,44 @@
+version: 2
+
+models:
+  - name: dim_users
+    description: One row per user with acquisition, activation, conversion and current subscription state.
+    columns:
+      - name: user_id
+        data_tests: [unique, not_null]
+      - name: subscription_status
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: [free, active, canceled]
+      - name: current_mrr_usd
+        data_tests: [not_negative]
+
+  - name: fct_daily_active_users
+    description: Daily active users by IST date. Incremental, with a lookback for late-arriving events.
+    columns:
+      - name: activity_date_ist
+        data_tests: [unique, not_null]
+      - name: daily_active_users
+        data_tests: [not_negative]
+
+  - name: fct_monthly_revenue
+    description: Month-end MRR and subscription movements per IST calendar month.
+    columns:
+      - name: revenue_month
+        data_tests: [unique, not_null]
+      - name: mrr_usd
+        data_tests: [not_negative]
+
+  - name: mart_retention_cohorts
+    description: Signup-month cohorts by months since signup, with the share of each cohort still active.
+    data_tests:
+      - unique_combination:
+          arguments:
+            columns: [cohort_month, months_since_signup]
+
+  - name: mart_trial_conversion
+    description: Weekly trial cohorts with activation and conversion rates.
+    columns:
+      - name: trial_week_ist
+        data_tests: [unique, not_null]

@@ -1,0 +1,14 @@
+version: 2
+
+sources:
+  - name: raw
+    description: Synthetic SaaS exports written by scripts/generate_data.py. All timestamps are UTC.
+    meta:
+      external_location: "read_csv('data/raw/{name}.csv', header = true)"
+    tables:
+      - name: users
+        description: One row per signup.
+      - name: subscription_events
+        description: Append-only log of trial starts, conversions, plan changes and cancellations.
+      - name: product_events
+        description: Raw product usage events, including client re-sends (repeated event_id) and late arrivals.

@@ -1,0 +1,26 @@
+name: subscription_analytics
+version: "1.0.0"
+config-version: 2
+profile: subscription_analytics
+
+model-paths: ["models"]
+macro-paths: ["macros"]
+test-paths: ["tests"]
+clean-targets: ["target", "dbt_packages"]
+
+models:
+  subscription_analytics:
+    staging:
+      +materialized: view
+    intermediate:
+      +materialized: view
+    marts:
+      +materialized: table
+
+vars:
+  # A trial counts as activated after this many key actions in its first 7 days.
+  activation_threshold: 3
+  # How far back each incremental run recomputes, to absorb late-arriving events.
+  late_arrival_days: 3
+  reporting_start: "2025-01-01"
+  reporting_end: "2026-04-01"

@@ -1,0 +1,62 @@
+version: 2
+
+models:
+  - name: stg_users
+    description: Signups with UTC and IST timestamps. Reporting uses the IST date.
+    columns:
+      - name: user_id
+        data_tests: [unique, not_null]
+      - name: signup_date_ist
+        description: Calendar day of signup in IST. Signups at or after 18:30 UTC fall on the next day.
+        data_tests: [not_null]
+      - name: acquisition_channel
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: [organic, paid_search, referral, partner]
+
+  - name: stg_subscription_events
+    description: Cleaned subscription event log.
+    columns:
+      - name: subscription_event_id
+        data_tests: [unique, not_null]
+      - name: user_id
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_users')
+                field: user_id
+      - name: event_type
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: [trial_started, converted, plan_changed, canceled]
+      - name: plan
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: [pro, team]
+      - name: mrr_usd
+        data_tests: [not_negative]
+
+  - name: stg_product_events
+    description: Product events with client re-sends removed, one row per event_id.
+    columns:
+      - name: event_id
+        description: Unique after deduplication; the raw source repeats some ids.
+        data_tests: [unique, not_null]
+      - name: user_id
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_users')
+                field: user_id
+      - name: event_type
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: [create_project, upload_file, export_report, login, invite_teammate]
+      - name: event_date_ist
+        data_tests: [not_null]

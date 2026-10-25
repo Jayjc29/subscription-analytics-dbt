@@ -1,0 +1,8 @@
+# Local DuckDB file: no account, no server. `dbt build --profiles-dir .` picks this up.
+subscription_analytics:
+  target: dev
+  outputs:
+    dev:
+      type: duckdb
+      path: subscription_analytics.duckdb
+      threads: 4

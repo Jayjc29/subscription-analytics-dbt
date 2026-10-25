@@ -1,0 +1,29 @@
+version: 2
+
+models:
+  - name: int_subscription_history
+    description: Type 2 history of paid subscriptions built from the event log with LEAD().
+    data_tests:
+      - no_overlapping_windows:
+          arguments:
+            partition_by: user_id
+            valid_from: valid_from_utc
+            valid_to: valid_to_utc
+    columns:
+      - name: subscription_version_id
+        data_tests: [unique, not_null]
+      - name: status
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: [active, canceled]
+      - name: mrr_usd
+        data_tests: [not_negative]
+
+  - name: int_trial_activation
+    description: One row per trial with activation (key actions in the first 7 days) and conversion flags.
+    columns:
+      - name: user_id
+        data_tests: [unique, not_null]
+      - name: key_actions_first_7_days
+        data_tests: [not_negative]
