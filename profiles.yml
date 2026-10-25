@@ -1,8 +1,32 @@
-# Local DuckDB file: no account, no server. `dbt build --profiles-dir .` picks this up.
 subscription_analytics:
   target: dev
   outputs:
+    # Local Apache Spark with Delta Lake, started in-process by dbt-spark's session mode.
+    # Needs Java 17; no cluster or account.
     dev:
-      type: duckdb
-      path: subscription_analytics.duckdb
+      type: spark
+      method: session
+      host: localhost
+      schema: analytics
+      threads: 1
+      server_side_parameters:
+        spark.master: "local[*]"
+        spark.jars.packages: "io.delta:delta-spark_4.2_2.13:4.4.1"
+        spark.sql.extensions: "io.delta.sql.DeltaSparkSessionExtension"
+        spark.sql.catalog.spark_catalog: "org.apache.spark.sql.delta.catalog.DeltaCatalog"
+        # Raw timestamps are UTC. Without this Spark parses them in the machine's zone.
+        spark.sql.session.timeZone: "UTC"
+        spark.sql.shuffle.partitions: "4"
+        spark.ui.enabled: "false"
+        spark.log.level: "ERROR"
+
+    # Databricks SQL warehouse. Not tested: needs a workspace, `pip install dbt-databricks`,
+    # these environment variables, and the raw tables loaded (see README).
+    databricks:
+      type: databricks
+      host: "{{ env_var('DATABRICKS_HOST', 'not-configured') }}"
+      http_path: "{{ env_var('DATABRICKS_HTTP_PATH', 'not-configured') }}"
+      token: "{{ env_var('DATABRICKS_TOKEN', 'not-configured') }}"
+      catalog: "{{ env_var('DATABRICKS_CATALOG', 'main') }}"
+      schema: analytics
       threads: 4

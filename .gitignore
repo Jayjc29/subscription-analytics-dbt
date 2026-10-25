@@ -3,6 +3,7 @@ data/raw/
 target/
 dbt_packages/
 logs/
-*.duckdb
-*.duckdb.wal
 .user.yml
+spark-warehouse/
+metastore_db/
+derby.log

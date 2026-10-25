@@ -1,5 +1,6 @@
 -- One row per trial with the two signals that drive conversion analysis: did the user reach the
 -- activation bar in their first 7 days, and did they convert to paid.
+-- Windows are added in hours: a day-based dateadd returns a date on Spark and would cut the time off.
 with users as (
     select user_id, signed_up_at_utc
     from {{ ref('stg_users') }}
@@ -12,7 +13,7 @@ key_actions as (
     from {{ ref('stg_product_events') }} as e
     inner join users as u on e.user_id = u.user_id
     where e.event_type in ('create_project', 'upload_file', 'export_report')
-      and e.event_at_utc < {{ dbt.dateadd('day', 7, 'u.signed_up_at_utc') }}
+      and e.event_at_utc < {{ dbt.dateadd('hour', 7 * 24, 'u.signed_up_at_utc') }}
     group by e.user_id
 ),
 
@@ -26,7 +27,7 @@ conversions as (
 select
     u.user_id,
     u.signed_up_at_utc as trial_started_at_utc,
-    {{ dbt.dateadd('day', 14, 'u.signed_up_at_utc') }} as trial_ended_at_utc,
+    {{ dbt.dateadd('hour', 14 * 24, 'u.signed_up_at_utc') }} as trial_ended_at_utc,
     coalesce(k.key_actions_first_7_days, 0) as key_actions_first_7_days,
     coalesce(k.key_actions_first_7_days, 0) >= {{ var('activation_threshold') }} as is_activated,
     c.converted_at_utc,

@@ -9,12 +9,16 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
       - run: pip install -r requirements.txt
       - run: python scripts/generate_data.py
-      - name: dbt build (full refresh)
+      - name: dbt build on Spark + Delta Lake (full refresh)
         run: dbt build --profiles-dir .
-      - name: dbt build (incremental run, exercises the lookback merge)
+      - name: dbt build (incremental run, exercises the Delta MERGE)
         run: dbt build --profiles-dir .

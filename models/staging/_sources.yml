@@ -2,9 +2,10 @@ version: 2
 
 sources:
   - name: raw
-    description: Synthetic SaaS exports written by scripts/generate_data.py. All timestamps are UTC.
-    meta:
-      external_location: "read_csv('data/raw/{name}.csv', header = true)"
+    description: >
+      Synthetic SaaS exports written by scripts/generate_data.py and registered as external CSV
+      tables by the register_raw_tables macro. All timestamps are UTC.
+    schema: raw
     tables:
       - name: users
         description: One row per signup.

@@ -8,8 +8,13 @@ macro-paths: ["macros"]
 test-paths: ["tests"]
 clean-targets: ["target", "dbt_packages"]
 
+# Register the raw CSV landing files as external tables before every run.
+on-run-start:
+  - "{{ register_raw_tables() }}"
+
 models:
   subscription_analytics:
+    +file_format: delta
     staging:
       +materialized: view
     intermediate:

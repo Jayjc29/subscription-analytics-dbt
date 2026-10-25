@@ -1,5 +1,5 @@
 -- The incremental table must match a full recompute from staging, day for day. This is what proves
--- the lookback window is wide enough and the delete+insert merge is correct.
+-- the lookback window is wide enough and the MERGE is correct.
 with full_recompute as (
     select
         event_date_ist as activity_date_ist,

@@ -2,13 +2,14 @@
     config(
         materialized='incremental',
         unique_key='activity_date_ist',
-        incremental_strategy='delete+insert',
+        incremental_strategy='merge',
         on_schema_change='fail'
     )
 }}
 
 -- Events can land up to a few days late, so each incremental run recomputes the most recent days
--- already in the table instead of only appending new dates. Older days are never touched.
+-- already in the table and MERGEs them in by date instead of only appending new dates. Older days
+-- are never touched.
 with events as (
     select user_id, event_date_ist
     from {{ ref('stg_product_events') }}
